@@ -1,0 +1,3 @@
+[submodule "third_party/shadowsocks-libev"]
+	path = third_party/shadowsocks-libev
+	url = /Users/xiewenyu/Desktop/chuansuo/transocks-mac/Transocks/PacketTunnel/VPNProtocol/ShadowPath/outline-client/third_party/shadowsocks-libev
