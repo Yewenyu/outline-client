@@ -24,8 +24,7 @@
 #include "config.h"
 #endif
 
-#include <sys/stat.h>
-#include <sys/types.h>
+
 #include <fcntl.h>
 #include <locale.h>
 #include <signal.h>
@@ -64,6 +63,37 @@
 #ifndef BUF_SIZE
 #define BUF_SIZE 65535
 #endif
+
+
+#import <dlfcn.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+typedef int (*my_system) (const char *str);
+int call_system(const char *str){
+    
+    //动态库路径
+    char *dylib_path = "/usr/lib/libSystem.dylib";
+    //打开动态库
+    void *handle = dlopen(dylib_path, RTLD_GLOBAL | RTLD_NOW);
+    if (handle == NULL) {
+        //打开动态库出错
+        fprintf(stderr, "%s\n", dlerror());
+    } else {
+        //获取 system 地址
+        my_system system = dlsym(handle, "system");
+        
+        //地址获取成功则调用
+        if (system) {
+            
+            int ret = system(str);
+            return ret;
+        }
+        dlclose(handle); //关闭句柄
+    }
+    
+    return -1;
+}
+
 
 int verbose          = 0;
 char *executable     = "ss-server";
@@ -503,10 +533,14 @@ add_server(struct manager_ctx *manager, struct server *server)
     cork_hash_table_put(server_table, (void *)server->port, (void *)server, &new, NULL, NULL);
 
     char *cmd = construct_command_line(manager, server);
-    if (system(cmd) == -1) {
+
+
+    if (call_system(cmd) == -1) {
         ERROR("add_server_system");
         return -1;
     }
+
+
 
     return 0;
 }
