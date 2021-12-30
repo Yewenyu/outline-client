@@ -3265,6 +3265,8 @@ ev_default_loop (unsigned int flags) EV_THROW
         }
       else
         ev_default_loop_ptr = 0;
+        
+        loop_done = EVBREAK_CANCEL;
     }
 
   return ev_default_loop_ptr;
@@ -3567,6 +3569,7 @@ ev_run (EV_P_ int flags)
   ++loop_depth;
 #endif
 
+
   assert (("libev: ev_loop recursion during release detected", loop_done != EVBREAK_RECURSE));
 
   loop_done = EVBREAK_CANCEL;
@@ -3696,6 +3699,9 @@ ev_run (EV_P_ int flags)
         /* update ev_rt_now, do magic */
         time_update (EV_A_ waittime + sleeptime);
       }
+        int ss = loop_done;
+        
+        int dd = ss;
 
       /* queue pending timers and reschedule them */
       timers_reify (EV_A); /* relative timers called last */
